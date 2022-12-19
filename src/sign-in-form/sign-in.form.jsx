@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import FormInput from "../form-input/form-input.component";
 import Button from "../components/button/button.component";
 import {
@@ -8,6 +8,7 @@ import {
 } from "../utils/firebase/firebase.utils";
 
 import "./sign-in-form.styles.scss";
+import { UserContext } from "../contexts/user.context";
 
 const defaultFormFields = {
   email: "",
@@ -17,6 +18,8 @@ const defaultFormFields = {
 const SignInForm = () => {
   const [formFields, setFormFields] = useState(defaultFormFields);
   const { email, password } = formFields;
+
+  const { setCurrentUser } = useContext(UserContext);
 
   const resetFormFields = () => {
     setFormFields(defaultFormFields);
@@ -31,8 +34,8 @@ const SignInForm = () => {
     event.preventDefault();
 
     try {
-      const response = await createSignInWithEmailAndPassword(email, password);
-      console.log(response);
+      const { user } = await createSignInWithEmailAndPassword(email, password);
+      setCurrentUser(user);
       resetFormFields();
     } catch (error) {
       switch (error.code) {
@@ -45,11 +48,6 @@ const SignInForm = () => {
         default:
           console.log(error);
       }
-      // if (error.code === "auth/wrong-password") {
-      //   alert("Incorrect Password");
-      // } else if (error.code === "auth/user-not-found") {
-      //   alert("email doesn't exist");
-      // }
     }
   };
 
@@ -81,7 +79,6 @@ const SignInForm = () => {
           value={password}
         />
         <div className="buttons-container">
-          
           <Button type="submit">SIGN IN</Button>
           <Button type="button" buttonType="google" onClick={signInwtihGoogle}>
             GOOGLE SIGN IN
